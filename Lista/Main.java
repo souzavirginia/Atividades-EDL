@@ -1,11 +1,14 @@
+// Diferente do vetor que acessa o elemento por número (indice/rank), a lista identifica por posição (referência de nó) - sendo uma refêrencia de memória que não muda
+//  A lista encadeada roda em O(1) mas o array precisa fazer o deslocamento, então inserção e remoção (tirando se for no final) é O(N)
+
 // Exceções
-class ExcecaoListaVazia extends RuntimeException {
+class ExcecaoListaVazia extends RuntimeException { // Ao usar first e last em estrutura sem elementos
     public ExcecaoListaVazia(String mensagem) {
         super(mensagem);
     }
 }
 
-class ExcecaoLimiteViolado extends RuntimeException {
+class ExcecaoLimiteViolado extends RuntimeException { // Ao tentar avançar além do último (after(last())) ou recuar além do primeiro (before(first()))
     public ExcecaoLimiteViolado(String mensagem) {
         super(mensagem);
     }
@@ -45,8 +48,8 @@ class No {
 }
 
 class ListaDuplamenteEncadeada implements Lista<No> {
-    private final No cabeca;
-    private final No cauda;
+    private final No cabeca; // Nó sentinela que aponta para o primeiro elemento real (ou para cauda se vazia)
+    private final No cauda; // Nó sentinela que aponta para o último elemento real (ou para cabeca se vazia)
     private int tamanho;
 
     public ListaDuplamenteEncadeada() {
@@ -115,7 +118,7 @@ class ListaDuplamenteEncadeada implements Lista<No> {
     }
 
     private No inserirEntre(Object o, No anterior, No proximo) {
-        No novo = new No(o, anterior, proximo);
+        No novo = new No(o, anterior, proximo); // Aloca o novo nó com as referências certas e ajusta os dois vizinhos para apontarem para ele
         anterior.proximo = novo;
         proximo.anterior = novo;
         tamanho++;
@@ -169,7 +172,7 @@ class ListaDuplamenteEncadeada implements Lista<No> {
 }
 
 // Lista Array
-class ItemArray {
+class ItemArray { // Posição dentro do array guarda seu indice (rank) e o elemento
     Object elemento;
     int rank;
 
@@ -179,13 +182,13 @@ class ItemArray {
     }
 }
 
-class ListaArray implements Lista<ItemArray> {
+class ListaArray implements Lista<ItemArray> { // Em lista ligada é No, em array é ItemArray: Como cada posição recebida nos parâmetros (p) sabe seu próprio índice (p.rank), o array não precisa procurar
     private ItemArray[] dados;
     private int capacidade;
     private int tamanho;
 
     public ListaArray(int capacidadeInicial) {
-        this.capacidade = (capacidadeInicial < 1) ? 1 : capacidadeInicial;
+        this.capacidade = (capacidadeInicial < 1) ? 1 : capacidadeInicial; // Se a capacidade for menor que 1, a capacidade deve ser 1, se não é a capacidade dada
         this.dados = new ItemArray[capacidade];
         this.tamanho = 0;
     }
@@ -264,11 +267,11 @@ class ListaArray implements Lista<ItemArray> {
         if (tamanho == capacidade) {
             duplicar();
         }
-        for (int i = tamanho; i > r; i--) {
-            dados[i] = dados[i - 1];
-            dados[i].rank = i;
+        for (int i = tamanho; i > r; i--) { // Faz o deslocamento
+            dados[i] = dados[i - 1]; // Copia a referência do elemento para a casa seguinte à direita
+            dados[i].rank = i; // O atributo interno rank precisa ser atualizado para i, atualizando a posição com novo indice
         }
-        ItemArray novo = new ItemArray(o, r);
+        ItemArray novo = new ItemArray(o, r); // Novo item com objeto o e indice r
         dados[r] = novo;
         tamanho++;
         return novo;
@@ -311,12 +314,12 @@ class ListaArray implements Lista<ItemArray> {
     @Override
     public Object remove(ItemArray p) {
         Object removido = p.elemento;
-        int r = p.rank;
-        for (int i = r; i < tamanho - 1; i++) {
-            dados[i] = dados[i + 1];
-            dados[i].rank = i;
+        int r = p.rank; // Já sabe o indice onde o elemento está
+        for (int i = r; i < tamanho - 1; i++) { // Deslocamento para a esquerda
+            dados[i] = dados[i + 1]; // Move o item da casa seguinte para a casa atual, cobrindo o espaço vazio
+            dados[i].rank = i; // Atualiza o atributo interno rank do marcador que acabou de ser movido
         }
-        dados[--tamanho] = null;
+        dados[--tamanho] = null; // Última posição valida antiga agora é null
         p.rank = -1;
         return removido;
     }
