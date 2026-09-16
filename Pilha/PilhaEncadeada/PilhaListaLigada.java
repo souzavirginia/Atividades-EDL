@@ -1,3 +1,5 @@
+// Em vez de alocar um bloco contínuo de memória pré-fixado (como um array), cada elemento é encapsulado em um nó independente que aponta para o elemento anterior (funcionando em O(1))
+
 interface Pilha {
     int size();
     boolean isEmpty();
@@ -13,8 +15,8 @@ class PilhaVaziaExcecao extends RuntimeException {
 }
 
 class Node {
-    private Object elemento;
-    private Node proximo;
+    private Object elemento; // Guarda o dado inserido 
+    private Node proximo; // Armazena o ponteiro de memória para o próximo dele na pilha
 
     public Node(Object elemento) {
         this.elemento = elemento;
@@ -39,18 +41,18 @@ class Node {
 }
 
 public class PilhaListaLigada implements Pilha {
-    protected Node topo;
-    protected int tamanho;
+    protected Node topo; // Inicio da pilha 
+    protected int tamanho; // Contador sincronizado a cada remoção/adição para que não precise percorrer a lista
 
-    public PilhaListaLigada() {
+    public PilhaListaLigada() { // Pilha vazia
         this.topo = null;
         this.tamanho = 0;
     }
 
     @Override
     public void push(Object elemento) {
-        Node node = new Node(elemento);
-        node.setProximo(this.topo);
+        Node node = new Node(elemento); // Novo nó contendo o objeto
+        node.setProximo(this.topo); // Faz o proximo desse novo nó apontar para quem era o antigo topo
         this.topo = node;
         this.tamanho++;
     }
@@ -60,8 +62,8 @@ public class PilhaListaLigada implements Pilha {
         if (isEmpty()) {
             throw new PilhaVaziaExcecao("A pilha está vazia");
         }
-        Object elementoRetirado = this.topo.getElemento();
-        this.topo = this.topo.getProximo();
+        Object elementoRetirado = this.topo.getElemento(); // Guarda o dado contido no nó do topo em elementoRetirado
+        this.topo = this.topo.getProximo(); // Muda novo topo
         this.tamanho--;
         return elementoRetirado;
     }
