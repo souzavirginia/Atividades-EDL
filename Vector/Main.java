@@ -1,3 +1,8 @@
+// Em vetor array a inserção e remoção no meio ou inicio é O(N) pois precisa deslocar os elementos
+// Já em vetor com lista duplamente encadeada as inserções nas extremidades é O(1) mas o acesso (elemAtRank), substituição (replaceAtRank) e 
+// inserção/remoção no meio é O(N) pois é obrigada a percorrer os nós até encontrar a posição
+
+
 // Exceção
 class BoundaryViolationException extends RuntimeException {
     public BoundaryViolationException(String erro) {
@@ -17,9 +22,9 @@ interface Vetor {
 
 // Implementação com array
 class ArrayVetor implements Vetor {
-    private Object[] A;
-    private int capacity;
-    private int size;
+    private Object[] A; // Array
+    private int capacity; // Tamanho
+    private int size; //Quantidade de elementos alocados
 
     public ArrayVetor(int capacity) {
         this.capacity = capacity;
@@ -31,7 +36,7 @@ class ArrayVetor implements Vetor {
         this(10);
     }
 
-    private void conferirIndice(int r, int n) { // Método auxiliar
+    private void conferirIndice(int r, int n) { // Método auxiliar (r deve estar no intervalo [0, n])
         if (r < 0 || r >= n) {
             throw new BoundaryViolationException("Rank inválido");
         }
@@ -50,7 +55,7 @@ class ArrayVetor implements Vetor {
     @Override
     public Object elemAtRank(int r) {
         conferirIndice(r, size);
-        return A[r];
+        return A[r]; // Acessa indice
     }
 
     @Override
@@ -63,7 +68,7 @@ class ArrayVetor implements Vetor {
 
     @Override
     public void insertAtRank(int r, Object o) {
-        conferirIndice(r, size + 1);
+        conferirIndice(r, size + 1); // Pode inserir depois do último elemento, criando nova posição
 
         // Aumento de capacidade
         if (size == capacity) {
@@ -75,7 +80,7 @@ class ArrayVetor implements Vetor {
             A = B;
         }
 
-        // Deslocamento
+        // Desloca para a direita os elementos de r até size - 1
         for (int i = size - 1; i >= r; i--) {
             A[i + 1] = A[i];
         }
@@ -90,11 +95,11 @@ class ArrayVetor implements Vetor {
         Object temp = A[r];
 
         // Deslocamento
-        for (int i = r; i < size - 1; i++) {
+        for (int i = r; i < size - 1; i++) { // Desloca para a esquerda os elementos de r + 1 até size - 1
             A[i] = A[i + 1];
         }
 
-        A[size - 1] = null;
+        A[size - 1] = null; // Libera a refêrencia
         size--;
         return temp;
     }
@@ -103,7 +108,7 @@ class ArrayVetor implements Vetor {
 // Implementação com lista duplamente ligada
 class DuplamenteLigada implements Vetor {
 
-    private static class No {
+    private static class No { // Ponteiros de refêrencia
         Object elemento;
         No anterior;
         No proximo;
@@ -115,8 +120,8 @@ class DuplamenteLigada implements Vetor {
         }
     }
 
-    private No inicio;
-    private No fim;
+    private No inicio; // Nó sentinela de inicio
+    private No fim; // Nó sentinela de fim
     private int size;
 
     public DuplamenteLigada() {
@@ -132,15 +137,15 @@ class DuplamenteLigada implements Vetor {
         }
     }
 
-    private No atRank(int rank) {
+    private No atRank(int rank) { // Esse método auxiliar decide de qual ponta começar (devolve a refêrencia ao nó)
         No node;
         if (rank <= size / 2) {
-            node = inicio.proximo;
+            node = inicio.proximo; // Parte do inicio.proximo e caminha para a frente
             for (int i = 0; i < rank; i++) {
                 node = node.proximo;
             }
         } else {
-            node = fim.anterior;
+            node = fim.anterior; // De outra forma, parte do fim.anterior
             for (int i = 0; i < size - rank - 1; i++) {
                 node = node.anterior;
             }
@@ -159,7 +164,7 @@ class DuplamenteLigada implements Vetor {
     }
 
     @Override
-    public Object elemAtRank(int r) {
+    public Object elemAtRank(int r) { // Me mostra o elemento em si
         conferirIndice(r, size);
         return atRank(r).elemento;
     }
@@ -167,7 +172,7 @@ class DuplamenteLigada implements Vetor {
     @Override
     public Object replaceAtRank(int r, Object o) {
         conferirIndice(r, size);
-        No node = atRank(r);
+        No node = atRank(r); // Achar o nó certo
         Object temp = node.elemento;
         node.elemento = o;
         return temp;
@@ -176,18 +181,18 @@ class DuplamenteLigada implements Vetor {
     @Override
     public void insertAtRank(int r, Object o) {
         conferirIndice(r, size + 1);
-
-        No p;
-        if (r == 0) {
+        // Identifica o nó anterior à posição onde o novo nó ficará 
+        No p; // Acha Nó "anterior" p, e insere depois dele
+        if (r == 0) { //Nó anterior é o próprio inicio (inserção no começo)
             p = inicio;
-        } else if (r == size) {
+        } else if (r == size) { //O anterior é o último nó real, inserindo no final
             p = fim.anterior;
-        } else {
+        } else { // Caso contrário acha o nó que hoje está no rank r e pega o nó antes dele
             p = atRank(r).anterior;
         }
 
-        No q = new No(o, p, p.proximo);
-        p.proximo.anterior = q;
+        No q = new No(o, p, p.proximo); // Cria novo nó q e ajusta seus ponteiros
+        p.proximo.anterior = q; // Liga ele ao p (como anterior) e ao que era o próximo de p (como seu próximo)
         p.proximo = q;
 
         size++;
@@ -199,7 +204,7 @@ class DuplamenteLigada implements Vetor {
         No node = atRank(r);
 
         Object temp = node.elemento;
-
+        // Desreferência o nó ligando o anterior direto com o próximo (tira o que quero remover da cadeia)
         node.anterior.proximo = node.proximo;
         node.proximo.anterior = node.anterior;
 
