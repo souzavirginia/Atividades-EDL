@@ -1,3 +1,6 @@
+// Em fila (diferente de pilha) os elementos entram pelo fim e saem pelo inicio
+// Com o uso do ponteiro auxiliar 'fim' ela não precisa percorrer toda lista até o final, sendo O(1)
+
 class FilaVaziaExcecao extends RuntimeException {
     public FilaVaziaExcecao(String erro) {
         super(erro);
@@ -31,8 +34,8 @@ class Node {
 }
 
 interface Fila {
-    void enqueue(Object o);
-    Object dequeue();
+    void enqueue(Object o); // Insere no fim 
+    Object dequeue(); // Remove o começo 
     Object primeiro();
     int tamanho();
     boolean estaVazio();
@@ -55,7 +58,7 @@ public class FilaSimplesEncadeada implements Fila {
         if (estaVazio()) {
             this.inicio = novoNo;
         } else {
-            this.fim.setProximo(novoNo);
+            this.fim.setProximo(novoNo); // O nó que estava no fim passa a apontar para o novo nó
         }
         this.fim = novoNo;
         this.tamanho++;
@@ -66,11 +69,11 @@ public class FilaSimplesEncadeada implements Fila {
         if (estaVazio()) {
             throw new FilaVaziaExcecao("A fila está vazia.");
         }
-        Object elementoRemovido = this.inicio.getElemento();
-        this.inicio = this.inicio.getProximo();
+        Object elementoRemovido = this.inicio.getElemento(); // Salva o elemento do início em elementoRemovido
+        this.inicio = this.inicio.getProximo(); // Inicio vira o próximo da fila
         this.tamanho--;
-        if (this.inicio == null) {
-            this.fim = null;
+        if (this.inicio == null) { //  Se o último item da fila for removido, inicio vira null
+            this.fim = null; 
         }
         return elementoRemovido;
     }
