@@ -6,6 +6,7 @@ interface Pilha {
     Object top() throws PilhaVaziaExcecao;
     void push(Object elemento);
     Object pop() throws PilhaVaziaExcecao;
+    void exibirPilha();
 }
 
 class PilhaVaziaExcecao extends RuntimeException {
@@ -25,10 +26,6 @@ class Node {
 
     public Object getElemento() {
         return this.elemento;
-    }
-
-    public void setElemento(Object elemento) {
-        this.elemento = elemento;
     }
 
     public Node getProximo() {
@@ -85,4 +82,13 @@ public class PilhaListaLigada implements Pilha {
     public int size() {
         return this.tamanho;
     }
+
+    @Override
+    public void exibirPilha() {
+        Node atual = topo;
+        while (atual != null) {
+            System.out.println("" + atual.getItem());
+            atual = atual.getNext();
+    }
+}
 }
