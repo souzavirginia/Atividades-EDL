@@ -1,0 +1,243 @@
+public class ListaEncadeada {
+ 
+    // =========================================================
+    // NÓ DA LISTA DUPLAMENTE ENCADEADA
+    // =========================================================
+    static class No {
+        public Object elemento; // valor armazenado (null nas sentinelas)
+        public No next, prev;   // referências para o próximo e o anterior
+ 
+        public No(Object elemento) {
+            this.elemento = elemento;
+            this.next = null;
+            this.prev = null;
+        }
+    }
+ 
+    // =========================================================
+    // INTERFACE DO TAD LISTA (navega por referência de nó)
+    // =========================================================
+    interface ListaNoInterface {
+        int size();
+        boolean isEmpty();
+        boolean isFirst(No n);
+        boolean isLast(No n);
+        No first();
+        No last();
+        No before(No n);
+        No after(No n);
+        Object replaceElement(No n, Object o);
+        void swapElements(No n, No m);
+        void insertBefore(No n, Object o);
+        void insertAfter(No n, Object o);
+        void insertFirst(Object o);
+        void insertLast(Object o);
+        void remove(No n);
+    }
+ 
+    // =========================================================
+    // TAD LISTA (implementação com lista duplamente encadeada)
+    // Usa dois nós sentinela ("first" e "last") que nunca guardam
+    // elementos de verdade — os elementos reais ficam sempre entre eles.
+    // =========================================================
+    static class Lista implements ListaNoInterface {
+        private int size;
+        private No first, last; // sentinelas de início e fim
+ 
+        public Lista() {
+            this.first = new No(null);
+            this.last = new No(null);
+            this.size = 0;
+        }
+ 
+        @Override
+        public int size() {
+            return size;
+        }
+ 
+        @Override
+        public boolean isEmpty() {
+            return first.next == null;
+        }
+ 
+        // isFirst: verifica se o nó passado é o primeiro nó real da lista
+        @Override
+        public boolean isFirst(No n) {
+            return n == first.next;
+        }
+ 
+        // isLast: verifica se o nó passado é o último nó real da lista
+        @Override
+        public boolean isLast(No n) {
+            return n == last.prev;
+        }
+ 
+        // first: retorna o primeiro nó real (logo após a sentinela "first")
+        @Override
+        public No first() {
+            return first.next;
+        }
+ 
+        // last: retorna o último nó real (logo antes da sentinela "last")
+        @Override
+        public No last() {
+            return last.prev;
+        }
+ 
+        // before: retorna o nó imediatamente anterior ao nó n
+        @Override
+        public No before(No n) {
+            return n.prev;
+        }
+ 
+        // after: retorna o nó imediatamente posterior ao nó n
+        @Override
+        public No after(No n) {
+            return n.next;
+        }
+ 
+        // replaceElement: troca o elemento guardado no nó n, retorna o antigo
+        @Override
+        public Object replaceElement(No n, Object o) {
+            Object aux = n.elemento;
+            n.elemento = o;
+            return aux;
+        }
+ 
+        // swapElements: troca os VALORES guardados nos nós n e m
+        // (os nós continuam nas mesmas posições da lista; só o conteúdo troca)
+        @Override
+        public void swapElements(No n, No m) {
+            Object aux = n.elemento;
+            n.elemento = m.elemento;
+            m.elemento = aux;
+        }
+ 
+        // insertBefore: insere um novo nó com valor o, IMEDIATAMENTE ANTES do nó n
+        @Override
+        public void insertBefore(No n, Object o) {
+            No novoNo = new No(o);
+            n.prev.next = novoNo; // o antigo "anterior de n" passa a apontar para novoNo
+            novoNo.prev = n.prev; // novoNo aponta para trás, para quem era o anterior de n
+            n.prev = novoNo;      // n passa a apontar para trás, para o novoNo
+            novoNo.next = n;      // novoNo aponta para frente, para n
+            size++;
+        }
+ 
+        // insertAfter: insere um novo nó com valor o, IMEDIATAMENTE DEPOIS do nó n
+        // (CORRIGIDO: agora usa n.next em vez de n.prev, como deveria)
+        @Override
+        public void insertAfter(No n, Object o) {
+            No novoNo = new No(o);
+            novoNo.next = n.next; // novoNo aponta para frente, para quem era o próximo de n
+            novoNo.prev = n;      // novoNo aponta para trás, para n
+            n.next.prev = novoNo; // o antigo "próximo de n" passa a apontar para trás, para novoNo
+            n.next = novoNo;      // n passa a apontar para frente, para o novoNo
+            size++;
+        }
+ 
+        // insertFirst: insere um novo nó no início da lista
+        @Override
+        public void insertFirst(Object o) {
+            No novoNo = new No(o);
+            if (first.next == null) {
+                // lista totalmente vazia -> novoNo fica ligado entre as sentinelas
+                first.next = novoNo;
+                last.prev = novoNo;
+                novoNo.prev = first;
+                novoNo.next = last;
+            } else {
+                // encaixa o novoNo entre "first" e o atual primeiro nó
+                novoNo.next = first.next;
+                novoNo.prev = first;
+                first.next.prev = novoNo;
+                first.next = novoNo;
+            }
+            size++;
+        }
+ 
+        // insertLast: insere um novo nó no final da lista
+        @Override
+        public void insertLast(Object o) {
+            No novoNo = new No(o);
+            if (last.prev == null) {
+                // lista totalmente vazia -> novoNo fica ligado entre as sentinelas
+                last.prev = novoNo;
+                first.next = novoNo;
+                novoNo.prev = first;
+                novoNo.next = last;
+            } else {
+                // encaixa o novoNo entre o atual último nó e "last"
+                novoNo.next = last;
+                novoNo.prev = last.prev;
+                last.prev.next = novoNo;
+                last.prev = novoNo;
+            }
+            size++;
+        }
+ 
+        // remove: retira o nó n da cadeia, religando seus vizinhos entre si
+        @Override
+        public void remove(No n) {
+            n.next.prev = n.prev;
+            n.prev.next = n.next;
+            n = null; // descarta apenas a referência local; o nó em si é
+                      // liberado pelo garbage collector quando não houver
+                      // mais nenhuma referência a ele
+            size--;
+        }
+ 
+        // print: percorre a lista inteira a partir da sentinela "first"
+        // (por isso o primeiro valor impresso é sempre "null", da sentinela)
+        public void print() {
+            No atual = first;
+            while (atual != null) {
+                System.out.print(atual.elemento);
+                System.out.print(" ");
+                atual = atual.next;
+            }
+            System.out.println();
+        }
+    }
+ 
+    // =========================================================
+    // TESTE (main) — demonstra o uso da Lista com lista duplamente encadeada
+    // =========================================================
+    public static void main(String[] args) {
+        Lista lista = new Lista();
+ 
+        for (int i = 0; i <= 5; i++) {
+            lista.insertFirst(i); // insere 0..5 sempre no início -> 5 4 3 2 1 0
+        }
+        lista.print();
+ 
+        No aux = lista.first();
+        for (int i = 0; i < 4; i++) { // anda até o quarto nó a partir do início
+            aux = lista.after(aux);
+        }
+        System.out.println(aux.elemento); // elemento do quarto nó
+ 
+        lista.insertBefore(aux, 10); // insere 10 antes desse nó
+        lista.print();
+ 
+        lista.insertFirst(100);
+        lista.insertLast(100);
+        lista.print();
+ 
+        lista.remove(lista.first());
+        lista.remove(lista.last());
+        lista.print();
+ 
+        lista.swapElements(lista.first(), lista.last());
+        lista.print();
+ 
+        System.out.println(lista.isFirst(lista.last()));
+        System.out.println(lista.isLast(lista.first()));
+ 
+        // Teste extra do insertAfter corrigido:
+        // insere 999 logo depois do primeiro nó e confirma a posição
+        System.out.println("Teste do insertAfter corrigido:");
+        lista.insertAfter(lista.first(), 999);
+        lista.print();
+    }
+}
