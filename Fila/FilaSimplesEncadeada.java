@@ -1,98 +1,124 @@
 // Em fila (diferente de pilha) os elementos entram pelo fim e saem pelo inicio
-// Com o uso do ponteiro auxiliar 'fim' ela não precisa percorrer toda lista até o final, sendo O(1)
 
-class FilaVaziaExcecao extends RuntimeException {
-    public FilaVaziaExcecao(String erro) {
-        super(erro);
-    }
-}
+public class FilaListaLigada {
 
-class Node {
-    private Object elemento;
-    private Node proximo;
-
-    public Node(Object elemento) {
-        this.elemento = elemento;
-        this.proximo = null;
-    }
-
-    public Object getElemento() {
-        return this.elemento;
-    }
-
-    public void setElemento(Object o) {
-        this.elemento = o;
-    }
-
-    public Node getProximo() {
-        return this.proximo;
-    }
-
-    public void setProximo(Node proximo) {
-        this.proximo = proximo;
-    }
-}
-
-interface Fila {
-    void enqueue(Object o); // Insere no fim 
-    Object dequeue(); // Remove o começo 
-    Object primeiro();
-    int tamanho();
-    boolean estaVazio();
-}
-
-public class FilaSimplesEncadeada implements Fila {
-    private Node inicio;
-    private Node fim;
-    private int tamanho;
-
-    public FilaSimplesEncadeada() {
-        this.inicio = null;
-        this.fim = null;
-        this.tamanho = 0;
-    }
-
-    @Override
-    public void enqueue(Object o) {
-        Node novoNo = new Node(o);
-        if (estaVazio()) {
-            this.inicio = novoNo;
-        } else {
-            this.fim.setProximo(novoNo); // O nó que estava no fim passa a apontar para o novo nó
+    // Nó da lista encadeada
+    static class No {
+        Object elemento;   // valor armazenado no nó
+        No proximo;        // referência para o próximo nó da lista
+ 
+        public No(Object elemento) {
+            this.elemento = elemento;
+            this.proximo = null; // todo nó novo nasce sem sucessor
         }
-        this.fim = novoNo;
-        this.tamanho++;
-    }
-
-    @Override
-    public Object dequeue() {
-        if (estaVazio()) {
-            throw new FilaVaziaExcecao("A fila está vazia.");
+ 
+        @Override
+        public String toString() {
+            return " " + this.elemento;
         }
-        Object elementoRemovido = this.inicio.getElemento(); // Salva o elemento do início em elementoRemovido
-        this.inicio = this.inicio.getProximo(); // Inicio vira o próximo da fila
-        this.tamanho--;
-        if (this.inicio == null) { //  Se o último item da fila for removido, inicio vira null
-            this.fim = null; 
+    }
+ 
+    //Exceção para fila vazia
+    static class FilaVaziaExcecao extends RuntimeException {
+        public FilaVaziaExcecao(String erro) {
+            super(erro);
         }
-        return elementoRemovido;
     }
 
-    @Override
-    public Object primeiro() {
-        if (estaVazio()) {
-            throw new FilaVaziaExcecao("A fila está vazia.");
+    // TAD Fila com lista simplesmente encadeada
+    // Usa ponteiros para o início e para o fim, de modo que inserir no fim (enqueue) e remover do início (dequeue) são O(1) - não precisa percorrer tudo
+    static class Fila {
+        private No inicio;   // referência para o primeiro nó da fila
+        private No fim;      // referência para o último nó da fila
+        private int tamanho; // quantidade de elementos na fila
+ 
+        // Construtor: fila começa vazia
+        public Fila() {
+            this.inicio = null;
+            this.fim = null;
+            this.tamanho = 0;
         }
-        return this.inicio.getElemento();
+ 
+        // enqueue: insere um novo elemento no fim 
+        public void enqueue(Object elemento) {
+            No novoNo = new No(elemento); // cria o nó que vai entrar na fila
+ 
+            if (inicio == null) {
+                // fila estava vazia: o novo nó é o início E o fim
+                inicio = novoNo;
+                fim = novoNo;
+            } else {
+                // liga o antigo último nó ao novo nó, e atualiza "fim"
+                fim.proximo = novoNo;
+                fim = novoNo;
+            }
+            tamanho++;
+        }
+ 
+        // dequeue: remove e retorna o elemento do início da fila
+        public Object dequeue() {
+            if (isEmpty()) {
+                throw new FilaVaziaExcecao("A fila está vazia");
+            }
+ 
+            No temp = inicio;          // guarda o nó que será removido
+            inicio = inicio.proximo;   // início passa a ser o segundo nó
+ 
+            // se a fila ficou vazia, "fim" também deve voltar a ser null
+            if (inicio == null) {
+                fim = null;
+            }
+ 
+            tamanho--;
+            return temp.elemento; // retorna o valor guardado no nó removido
+        }
+ 
+        // isEmpty: indica se a fila não possui elementos
+        public boolean isEmpty() {
+            return inicio == null;
+        }
+ 
+        // first: retorna (sem remover) o elemento do início da fila
+        public Object first() {
+            if (isEmpty()) {
+                throw new FilaVaziaExcecao("A fila está vazia");
+            }
+            return inicio.elemento;
+        }
+ 
+        // size: retorna a quantidade de elementos na fila
+        public int size() {
+            return tamanho;
+        }
+ 
+        // imprimirFila: percorre a lista do início ao fim, imprimindo cada elemento
+        public void imprimirFila() {
+            No atual = inicio;
+            while (atual != null) {
+                System.out.print(atual.elemento + " ");
+                atual = atual.proximo;
+            }
+            System.out.println();
+        }
     }
-
-    @Override
-    public int tamanho() {
-        return this.tamanho;
-    }
-
-    @Override
-    public boolean estaVazio() {
-        return this.tamanho == 0;
+ 
+    // Teste
+    public static void main(String[] args) {
+        Fila fila = new Fila();
+ 
+        System.out.println("Inserindo nós na fila:");
+        for (int i = 0; i < 10; i++) {
+            fila.enqueue(i); // insere 0,1,2,...,9
+        }
+        fila.imprimirFila();
+ 
+        System.out.println("Removendo nós na fila:");
+        for (int i = 0; i < 6; i++) {
+            System.out.println(fila.dequeue()); // remove os 6 primeiros
+        }
+        fila.imprimirFila();
+ 
+        System.out.println("O primeiro elemento da fila é: " + fila.first());
+        System.out.println("O tamanho da fila é: " + fila.size());
     }
 }
