@@ -1,3 +1,4 @@
+// Implementa TAD Vector array e lista duplamente encadeada
 // Em vetor array a inserção e remoção no meio ou inicio é O(N) pois precisa deslocar os elementos
 // Já em vetor com lista duplamente encadeada as inserções nas extremidades é O(1) mas o acesso (elemAtRank), substituição (replaceAtRank) e 
 // inserção/remoção no meio é O(N) pois é obrigada a percorrer os nós até encontrar a posição
