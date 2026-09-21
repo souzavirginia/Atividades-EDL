@@ -1,8 +1,6 @@
 public class ListaEncadeada {
- 
-    // =========================================================
-    // NÓ DA LISTA DUPLAMENTE ENCADEADA
-    // =========================================================
+
+   // Nó
     static class No {
         public Object elemento; // valor armazenado (null nas sentinelas)
         public No next, prev;   // referências para o próximo e o anterior
@@ -14,9 +12,7 @@ public class ListaEncadeada {
         }
     }
  
-    // =========================================================
-    // INTERFACE DO TAD LISTA (navega por referência de nó)
-    // =========================================================
+    // Interface do TAD Lista - navega por referência de nó
     interface ListaNoInterface {
         int size();
         boolean isEmpty();
@@ -35,14 +31,10 @@ public class ListaEncadeada {
         void remove(No n);
     }
  
-    // =========================================================
-    // TAD LISTA (implementação com lista duplamente encadeada)
-    // Usa dois nós sentinela ("first" e "last") que nunca guardam
-    // elementos de verdade — os elementos reais ficam sempre entre eles.
-    // =========================================================
+    // TAD Lista - Usa nós sentinelas first e last de início e fim
     static class Lista implements ListaNoInterface {
         private int size;
-        private No first, last; // sentinelas de início e fim
+        private No first, last;
  
         public Lista() {
             this.first = new No(null);
@@ -72,13 +64,13 @@ public class ListaEncadeada {
             return n == last.prev;
         }
  
-        // first: retorna o primeiro nó real (logo após a sentinela "first")
+        // first: retorna o primeiro nó real (logo após a sentinela first)
         @Override
         public No first() {
             return first.next;
         }
  
-        // last: retorna o último nó real (logo antes da sentinela "last")
+        // last: retorna o último nó real (logo antes da sentinela last)
         @Override
         public No last() {
             return last.prev;
@@ -104,8 +96,8 @@ public class ListaEncadeada {
             return aux;
         }
  
-        // swapElements: troca os VALORES guardados nos nós n e m
-        // (os nós continuam nas mesmas posições da lista; só o conteúdo troca)
+        // swapElements: troca os valores guardados nos nós n e m
+        // (mesmas posições na lista, só o conteúdo troca)
         @Override
         public void swapElements(No n, No m) {
             Object aux = n.elemento;
@@ -113,7 +105,7 @@ public class ListaEncadeada {
             m.elemento = aux;
         }
  
-        // insertBefore: insere um novo nó com valor o, IMEDIATAMENTE ANTES do nó n
+        // insertBefore: insere um novo nó com valor o, antes do nó n
         @Override
         public void insertBefore(No n, Object o) {
             No novoNo = new No(o);
@@ -124,8 +116,7 @@ public class ListaEncadeada {
             size++;
         }
  
-        // insertAfter: insere um novo nó com valor o, IMEDIATAMENTE DEPOIS do nó n
-        // (CORRIGIDO: agora usa n.next em vez de n.prev, como deveria)
+        // insertAfter: insere um novo nó com valor o, depoisdo nó n
         @Override
         public void insertAfter(No n, Object o) {
             No novoNo = new No(o);
@@ -147,7 +138,7 @@ public class ListaEncadeada {
                 novoNo.prev = first;
                 novoNo.next = last;
             } else {
-                // encaixa o novoNo entre "first" e o atual primeiro nó
+                // encaixa o novoNo entre first e o atual primeiro nó
                 novoNo.next = first.next;
                 novoNo.prev = first;
                 first.next.prev = novoNo;
@@ -167,7 +158,7 @@ public class ListaEncadeada {
                 novoNo.prev = first;
                 novoNo.next = last;
             } else {
-                // encaixa o novoNo entre o atual último nó e "last"
+                // encaixa o novoNo entre o atual último nó e last
                 novoNo.next = last;
                 novoNo.prev = last.prev;
                 last.prev.next = novoNo;
@@ -182,13 +173,11 @@ public class ListaEncadeada {
             n.next.prev = n.prev;
             n.prev.next = n.next;
             n = null; // descarta apenas a referência local; o nó em si é
-                      // liberado pelo garbage collector quando não houver
-                      // mais nenhuma referência a ele
+                      // liberado pelo garbage collector quando não houver mais nenhuma referência a ele
             size--;
         }
  
-        // print: percorre a lista inteira a partir da sentinela "first"
-        // (por isso o primeiro valor impresso é sempre "null", da sentinela)
+        // print: percorre a lista inteira a partir da sentinela first (o primeiro valor impresso é sempre null, da sentinela)
         public void print() {
             No atual = first;
             while (atual != null) {
@@ -199,15 +188,13 @@ public class ListaEncadeada {
             System.out.println();
         }
     }
- 
-    // =========================================================
-    // TESTE (main) — demonstra o uso da Lista com lista duplamente encadeada
-    // =========================================================
+
+    // Teste
     public static void main(String[] args) {
         Lista lista = new Lista();
  
         for (int i = 0; i <= 5; i++) {
-            lista.insertFirst(i); // insere 0..5 sempre no início -> 5 4 3 2 1 0
+            lista.insertFirst(i); // insere 0..5  -> 5 4 3 2 1 0
         }
         lista.print();
  
@@ -234,9 +221,8 @@ public class ListaEncadeada {
         System.out.println(lista.isFirst(lista.last()));
         System.out.println(lista.isLast(lista.first()));
  
-        // Teste extra do insertAfter corrigido:
+        // Teste do insertAfter:
         // insere 999 logo depois do primeiro nó e confirma a posição
-        System.out.println("Teste do insertAfter corrigido:");
         lista.insertAfter(lista.first(), 999);
         lista.print();
     }
