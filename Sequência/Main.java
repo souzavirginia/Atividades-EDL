@@ -4,7 +4,7 @@ interface Sequencia {
     Object replaceAtRank(int r, Object o);
     void insertAtRank(int r, Object o);
     Object removeAtRank(int r);
-
+ 
     // Métodos de lista (acesso por nó)
     boolean isFirst(No n);
     boolean isLast(No n);
@@ -19,49 +19,49 @@ interface Sequencia {
     void insertFirst(Object o);
     void insertLast(Object o);
     void remove(No n);
-
+ 
     // Métodos ponte (faz a conversão de uma visão para a outra)
     No atRank(int rank); // do índice para o nó
     int rankOf(No n);    // do nó para o índice
-
+ 
     // Métodos de sequência
     void print();
     int size();
     boolean isEmpty();
 }
-
+ 
 // TAD Posição
 class No {
     public Object elemento;
     protected No next, prev; // usado pela lista duplamente ligada
     protected int rank;       // usado pelo array
-
+ 
     // Construtor usado pela lista duplamente encadeada
     public No(Object elemento) {
         this.elemento = elemento;
         this.next = null;
         this.prev = null;
     }
-
+ 
     // Construtor usado pelo array
     public No(Object elemento, int rank) {
         this.elemento = elemento;
         this.rank = rank;
     }
 }
-
+ 
 // Exceção
 class SequenciaExcecao extends RuntimeException {
     public SequenciaExcecao(String mensagem) {
         super(mensagem);
     }
 }
-
+ 
 // Implementação Sequência com lista duplamente encadeada
 class SequenciaDuplamente implements Sequencia {
     private int size;
     private No first, last;
-
+ 
     public SequenciaDuplamente() {
         this.first = new No(null);
         this.last = new No(null);
@@ -69,7 +69,7 @@ class SequenciaDuplamente implements Sequencia {
         last.prev = first;
         this.size = 0;
     }
-
+ 
     // Métodos do vetor
     // Retorna o elemento na colocação r
     public Object elemAtRank(int r) {
@@ -82,7 +82,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         return atual.elemento;
     }
-
+ 
     // Substitui o elemento na colocação r por o e retorna o antigo elemento
     public Object replaceAtRank(int r, Object o) {
         if (r < 0 || r >= size) {
@@ -96,16 +96,13 @@ class SequenciaDuplamente implements Sequencia {
         atual.elemento = o;
         return aux;
     }
-
+ 
     // Insere um novo elemento na colocação r
     public void insertAtRank(int r, Object o) {
         No novoNo = new No(o);
         No antigoNo = first.next;
-        if (r < 0) {
+        if (r < 0 || r > size) { // r == size é permitido, inserindo depois do último
             throw new SequenciaExcecao("Posição informada é inválida: " + r);
-        }
-        if (r > size) { // r == size é permitido, inserindo depois do último
-            throw new SequenciaExcecao("Não é possível inserir um elemento numa posição que é maior que o número de elementos atual da lista");
         }
         if (isEmpty()) { // Lista vazia
             first.next = novoNo;
@@ -128,7 +125,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         size++;
     }
-
+ 
     // Remove e retorna o elemento na posição r
     public Object removeAtRank(int r) {
         No antigoNo = first.next;
@@ -157,18 +154,18 @@ class SequenciaDuplamente implements Sequencia {
         size--;
         return elemento;
     }
-
+ 
     // Métodos de lista
     // Verifica se o nó passado é o primeiro
     public boolean isFirst(No n) {
         return n == first.next;
     }
-
+ 
     // Verifica se o nó é o último
     public boolean isLast(No n) {
         return n == last.prev;
     }
-
+ 
     // Retorna o primeiro elemento
     public No first() {
         if (isEmpty()) {
@@ -176,7 +173,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         return first.next;
     }
-
+ 
     // Retorna o último elemento
     public No last() {
         if (isEmpty()) {
@@ -184,7 +181,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         return last.prev;
     }
-
+ 
     // Retorna o nó antes do nó passado
     public No before(No n) {
         if (isFirst(n)) {
@@ -192,7 +189,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         return n.prev;
     }
-
+ 
     // Retorna o nó depois do nó passado
     public No after(No n) {
         if (isLast(n)) {
@@ -200,21 +197,21 @@ class SequenciaDuplamente implements Sequencia {
         }
         return n.next;
     }
-
+ 
     // Substitui o elemento do nó pelo objeto o
     public Object replaceElement(No n, Object o) {
         Object aux = n.elemento;
         n.elemento = o;
         return aux;
     }
-
+ 
     // Troca os elementos internos dos nós n e m
     public void swapElements(No n, No m) {
         Object aux = n.elemento;
         n.elemento = m.elemento;
         m.elemento = aux;
     }
-
+ 
     // Insere o nó antes do nó informado
     public void insertBefore(No n, Object o) {
         No novoNo = new No(o);
@@ -224,7 +221,7 @@ class SequenciaDuplamente implements Sequencia {
         novoNo.next = n;
         size++;
     }
-
+ 
     // Insere o nó depois do nó informado
     public void insertAfter(No n, Object o) {
         No novoNo = new No(o);
@@ -234,7 +231,7 @@ class SequenciaDuplamente implements Sequencia {
         novoNo.prev = n;
         size++;
     }
-
+ 
     // Insere o nó no início da lista
     public void insertFirst(Object o) {
         No novoNo = new No(o);
@@ -251,7 +248,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         size++;
     }
-
+ 
     // Insere o nó no final da lista
     public void insertLast(Object o) {
         No novoNo = new No(o);
@@ -268,16 +265,19 @@ class SequenciaDuplamente implements Sequencia {
         }
         size++;
     }
-
+ 
     // Remove o nó passado
     public void remove(No n) {
+        if (n.next == null || n.prev == null) { // nó já removido
+            throw new SequenciaExcecao("Nó inválido");
+        }
         n.next.prev = n.prev;
         n.prev.next = n.next;
         n.next = null; // o nó removido não mantém mais referências para a lista
         n.prev = null;
         size--;
     }
-
+ 
     // Métodos ponte
     // Acessa um nó em uma sequência com base em sua posição
     public No atRank(int r) {
@@ -297,7 +297,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         return atual;
     }
-
+ 
     // Determina a posição de um nó específico na sequência
     public int rankOf(No n) {
         No atual = first.next;
@@ -309,7 +309,7 @@ class SequenciaDuplamente implements Sequencia {
         }
         throw new SequenciaExcecao("Nó não encontrado.");
     }
-
+ 
     // Métodos de sequência
     public void print() {
         No atual = first.next;
@@ -320,27 +320,27 @@ class SequenciaDuplamente implements Sequencia {
         }
         System.out.println();
     }
-
+ 
     public int size() {
         return size;
     }
-
+ 
     public boolean isEmpty() {
         return size == 0;
     }
 }
-
+ 
 // Implementação Sequência Array
 class SequenciaArray implements Sequencia {
     private static final int capacidade_inicial = 10;
     private No[] V; // array v de posições (No)
     private int size;
-
+ 
     public SequenciaArray() {
         this.V = new No[capacidade_inicial];
         this.size = 0;
     }
-
+ 
     // Métodos auxiliares
     // Garante que existe espaço no array; se não houver, dobra a capacidade
     private void aumentaCapacidade() {
@@ -350,39 +350,31 @@ class SequenciaArray implements Sequencia {
             V = novoV;
         }
     }
-
-    // Valida um rank de acesso (acesso/remoção exige 0 <= r < size, devendo ter elemento ali)
-    private void checarRankAcesso(int r) {
-        if (r < 0 || r >= size) {
-            throw new SequenciaExcecao("Posição informada é inválida: " + r);
-        }
-    }
-
-    // Valida um rank de inserção (aceita 0 <= r <= size, podendo inserir logo depois do último elemento)
-    private void checarRankInsercao(int r) {
-        if (r < 0 || r > size) {
-            throw new SequenciaExcecao("Não é possível inserir um elemento numa posição que é maior que o número de elementos atual da lista");
-        }
-    }
-
+ 
     // Métodos do vetor
     // Retorna o elemento na colocação r
     public Object elemAtRank(int r) {
-        checarRankAcesso(r);
+        if (r < 0 || r >= size) {
+            throw new SequenciaExcecao("Posição informada é inválida: " + r);
+        }
         return V[r].elemento;
     }
-
+ 
     // Substitui o elemento na colocação r por o e retorna o antigo elemento
     public Object replaceAtRank(int r, Object o) {
-        checarRankAcesso(r);
+        if (r < 0 || r >= size) {
+            throw new SequenciaExcecao("Posição informada é inválida: " + r);
+        }
         Object aux = V[r].elemento;
         V[r].elemento = o;
         return aux;
     }
-
+ 
     // Insere um novo elemento na colocação r
     public void insertAtRank(int r, Object o) {
-        checarRankInsercao(r);
+        if (r < 0 || r > size) { // r == size é permitido, inserindo depois do último
+            throw new SequenciaExcecao("Posição informada é inválida: " + r);
+        }
         aumentaCapacidade();
         for (int i = size; i > r; i--) {
             V[i] = V[i - 1];
@@ -391,13 +383,15 @@ class SequenciaArray implements Sequencia {
         V[r] = new No(o, r);
         size++;
     }
-
+ 
     // Remove e retorna o elemento na posição r
     public Object removeAtRank(int r) {
         if (isEmpty()) {
             throw new SequenciaExcecao("Vetor já está vazio");
         }
-        checarRankAcesso(r);
+        if (r < 0 || r >= size) {
+            throw new SequenciaExcecao("Posição informada é inválida: " + r);
+        }
         Object elemento = V[r].elemento;
         V[r].rank = -1; // marca o nó como removido
         for (int i = r; i < size - 1; i++) {
@@ -408,18 +402,24 @@ class SequenciaArray implements Sequencia {
         size--;
         return elemento;
     }
-
+ 
     // Métodos de lista
     // Verifica se o nó passado é o primeiro
     public boolean isFirst(No n) {
+        if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
         return n.rank == 0;
     }
-
+ 
     // Verifica se o nó é o último
     public boolean isLast(No n) {
+        if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
         return n.rank == size - 1;
     }
-
+ 
     // Retorna o primeiro elemento
     public No first() {
         if (isEmpty()) {
@@ -427,7 +427,7 @@ class SequenciaArray implements Sequencia {
         }
         return V[0];
     }
-
+ 
     // Retorna o último elemento
     public No last() {
         if (isEmpty()) {
@@ -435,7 +435,7 @@ class SequenciaArray implements Sequencia {
         }
         return V[size - 1];
     }
-
+ 
     // Retorna o nó antes do nó passado
     public No before(No n) {
         if (isFirst(n)) {
@@ -443,7 +443,7 @@ class SequenciaArray implements Sequencia {
         }
         return V[n.rank - 1];
     }
-
+ 
     // Retorna o nó depois do nó passado
     public No after(No n) {
         if (isLast(n)) {
@@ -451,21 +451,30 @@ class SequenciaArray implements Sequencia {
         }
         return V[n.rank + 1];
     }
-
+ 
     // Substitui o elemento do nó pelo objeto o
     public Object replaceElement(No n, Object o) {
+        if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
         Object aux = n.elemento;
         n.elemento = o;
         return aux;
     }
-
+ 
     // Troca os elementos (conteúdo) dos nós n e m, sem mexer no rank de cada um
     public void swapElements(No n, No m) {
+        if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
+        if (m.rank < 0 || m.rank >= size || V[m.rank] != m) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
         Object aux = n.elemento;
         n.elemento = m.elemento;
         m.elemento = aux;
     }
-
+ 
     // Insere o elemento antes do nó informado
     public void insertBefore(No n, Object o) {
         if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
@@ -473,7 +482,7 @@ class SequenciaArray implements Sequencia {
         }
         insertAtRank(n.rank, o);
     }
-
+ 
     // Insere o elemento depois do nó informado
     public void insertAfter(No n, Object o) {
         if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
@@ -481,17 +490,17 @@ class SequenciaArray implements Sequencia {
         }
         insertAtRank(n.rank + 1, o);
     }
-
+ 
     // Insere o elemento no início da sequência
     public void insertFirst(Object o) {
         insertAtRank(0, o);
     }
-
+ 
     // Insere o elemento no final da sequência
     public void insertLast(Object o) {
         insertAtRank(size, o);
     }
-
+ 
     // Remove o nó passado
     public void remove(No n) {
         if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
@@ -499,19 +508,24 @@ class SequenciaArray implements Sequencia {
         }
         removeAtRank(n.rank);
     }
-
+ 
     // Métodos ponte
     // Acessa o nó (posição) em uma sequência com base em sua posição
     public No atRank(int r) {
-        checarRankAcesso(r);
+        if (r < 0 || r >= size) {
+            throw new SequenciaExcecao("Posição informada é inválida: " + r);
+        }
         return V[r];
     }
-
+ 
     // Determina a posição (rank) de um nó específico na sequência
     public int rankOf(No n) {
+        if (n.rank < 0 || n.rank >= size || V[n.rank] != n) {
+            throw new SequenciaExcecao("Nó inválido");
+        }
         return n.rank;
     }
-
+ 
     // Métodos de sequência
     public void print() {
         for (int i = 0; i < size; i++) {
@@ -520,86 +534,87 @@ class SequenciaArray implements Sequencia {
         }
         System.out.println();
     }
-
+ 
     public int size() {
         return size;
     }
-
+ 
     public boolean isEmpty() {
         return size == 0;
     }
 }
-
+ 
 // Testes
 public class Main {
     public static void main(String[] args) {
         System.out.println("Teste Sequencia Duplamente Ligada");
         testarSequencia(new SequenciaDuplamente());
-
+ 
         System.out.println();
         System.out.println("Teste SequenciaArray");
         testarSequencia(new SequenciaArray());
     }
-
+ 
     private static void testarSequencia(Sequencia sequencia) {
         System.out.println("Teste métodos do vetor");
         sequencia.print();
-
+ 
         System.out.println("Tamanho da sequencia");
         System.out.println(sequencia.size());
-
+ 
         System.out.println("Inserindo em posição específica: ");
         sequencia.insertAtRank(0, 1);
         sequencia.insertAtRank(1, 2);
         sequencia.insertAtRank(2, 3);
         sequencia.print();
-
+ 
         System.out.println("Retornando o elemento na posição escolhida (1)");
         System.out.println(sequencia.elemAtRank(1));
-
+ 
         System.out.println("Substituindo o elemento da posição 2");
         System.out.println(sequencia.replaceAtRank(2, 100));
         sequencia.print();
-
+ 
         System.out.println("Removendo elemento na posição escolhida (2)");
         System.out.println(sequencia.removeAtRank(2));
         sequencia.print();
-
+ 
         System.out.println();
         System.out.println("Teste métodos de lista");
-
+ 
         System.out.println("Inserindo um nó antes do nó informado (1)");
         sequencia.insertBefore(sequencia.atRank(1), 33);
         sequencia.print();
-
+ 
         System.out.println("Inserindo um nó depois do nó informado (1)");
         sequencia.insertAfter(sequencia.atRank(2), 55);
         sequencia.print();
-
+ 
         System.out.println("Inserindo o nó no inicio da sequencia");
         sequencia.insertFirst(21);
         sequencia.print();
-
+ 
         System.out.println("Inserindo o nó no fim da sequencia");
         sequencia.insertLast(23);
         sequencia.print();
-
+ 
         System.out.println("Substituindo o elemento do nó pelo objeto passado");
         sequencia.replaceElement(sequencia.atRank(1), 10);
         sequencia.print();
-
+ 
         System.out.println("Trocando os elementos de dois nós");
         sequencia.swapElements(sequencia.atRank(1), sequencia.last());
         sequencia.print();
-
+ 
         System.out.println("Removendo um nó");
         sequencia.remove(sequencia.atRank(0));
         sequencia.print();
-
+ 
         System.out.println("Tamanho da sequencia");
         System.out.println(sequencia.size());
-
+ 
         System.out.println("Testando método rankOf");
         System.out.println(sequencia.rankOf(sequencia.last()));
     }
 }
+ 
