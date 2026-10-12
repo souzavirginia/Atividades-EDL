@@ -124,7 +124,6 @@ class no {
 class Comparador {
   public Comparador() {}
 
-  @SuppressWarnings("unchecked")
   public int comparar(Object n1, Object n2) { // Devolve 1, 0 ou -1
     int r = ((Comparable<Object>) n1).compareTo(n2);
     if (r > 0) return 1;  // n1 é maior
